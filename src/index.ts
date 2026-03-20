@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from 'express';
 import morgan from 'morgan';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { UserService } from './user-service';
 
 const app = express();
 const port = process.env.PORT;
@@ -16,6 +17,14 @@ app.use(rateLimit({
   legacyHeaders: false,
 }));
 app.use(express.json());
+
+const userService = new UserService();
+
+app.post('/v1/users', async (req: Request, res: Response, next: NextFunction) => {
+  const { name, email, password } = req.body;
+  userService.createUser(name, email, password);
+  return res.status(201).json({ message: 'User created' });
+});
 
 app.get('/v1/products', async (req: Request, res: Response, next: NextFunction) => {
   return res.json({ message: 'Products' });
